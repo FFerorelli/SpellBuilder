@@ -2,58 +2,122 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public Interface IChannelable
+{
+    SpellType GetSpelltype();
+    float DrainPower(float amount);
+    void SetChannel(Spell spell, Channel channel);
+    void ChannelInterrupted();
+}
+
+public enum ChannelState
+{
+    CHANNELING,
+    IDLE
+}
+
 public class Channel : MonoBehaviour
 {
-    GameObject target;
+    IChannelable target;
+    Spell current_spell;
     LineRenderer channelRenderer;
-    Vector2 dir;
+    ChannelState channelState;
     RaycastHit2D hit;
-    Power power;
     float elaspedTime = 0;
     float startTime = 0;
     float powerTimer = 1;
     // Start is called before the first frame update
     void Start()
     {
+        channelState = ChannelState.IDLE;
         channelRenderer = GetComponent<LineRenderer>();
-        power = GetComponent<Power>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {         
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
-            hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-            Debug.Log("Something was clicked!" + hit.collider.name);
-        }
-        if (hit.collider != null)
+        if (channelState == ChannelState.IDLE)
         {
-            target = hit.collider.gameObject;
-            RenderChanneling(target);
-            DrainPower();
+            if (Input.GetMouseButtonDown(0))
+            {
+                IChannelable temp_target = Get_Channelable();
+                if (temp_target != null)
+                {
+                    ChannelSetup(temp_target);
+                }
+            }
+        }
+
+        if (channelState == ChannelState.CHANNELING)
+        {
+            DrainPower(target,current_spell);
+            UpdateChannelRendered();
         }
     }
 
-    private void RenderChanneling(GameObject target)
+    public void ChannelDestroy()
     {
-        dir = hit.collider.transform.position - transform.position;
+        if (target != null) target.ChannelInterrupted();
+        if (spell != null) spell.ChannelInterrupted();
+        RenderChannelDestroy();
+        channelState = ChannelState.IDLE;
+    }
+
+    private void DrainPower(IChannelable target, Spell spell)
+    {
+        Debug.Log("DRAIN POWER(target,spell)")
+    }
+
+    private ChannelSetup(IChannelable new_target)
+    {
+        target = new_target;
+        channelState = ChannelState.CHANNELING;
+        RenderChannelingSetup(target);
+        SpellSetup(target);
+        target.SetChannel(currentSpell, this);
+        Debug.Log($"Started channel on {target.collider.name}");
+    }
+
+    private SpellSetup(IChannelable target)
+    {
+        currentSpell = new Spell(this, target, target.GetSpellType());
+    }
+
+    private IChannelable Get_Channelable()
+    {     
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
+        hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
+        if (hit.collider != null) 
+        {
+            Debug.Log("Channelable object was clicked!" + hit.collider.name);
+            return hit.collider.gameObject as IChannelable;
+        }
+    }
+
+    private void RenderChannelUpdate(GameObject target)
+    {
+        channelRenderer.SetPosition(0, transform.position);
+        channelRenderer.SetPosition(1, target.transform.position);
+    }
+
+    private void RenderChannelingSetup(GameObject target)
+    {
         channelRenderer.enabled = true;
         channelRenderer.SetPosition(0, transform.position);
         channelRenderer.SetPosition(1, target.transform.position);
     }
 
-    void DrainPower()
+    private void RenderChannelDestroy()
     {
-        powerTimer -= Time.deltaTime;
-        
-        if (powerTimer < 0)
-        {
-            powerTimer = 1;
-            power.points += 1;
-        }
+        channelRender.enabled = false;
+    }
+
+    void DrainPower(IChannelable target, Spell spell)
+    {
+        float amount = spell.GetDrainPower();
+        float power = target.DrainPower(amount);
+        spell.AddPower(power);     
     }
 
 }
