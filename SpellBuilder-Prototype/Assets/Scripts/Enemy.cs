@@ -2,17 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, IAction
+public class Enemy : MonoBehaviour, IAction, IChannelable
 {
     [SerializeField]
     Health target;
     Player player;
-   // Player player;
     float timeSinceLastAttack = Mathf.Infinity;
     [SerializeField] float movementSpeed = 2f;
     [SerializeField] float range = 2f;
     [SerializeField] float damage = 10f;
     [SerializeField] float timeBetweenAttacks = 1f;
+
+    [SerializeField] float power = 10f;
+    [SerializeField] SpellType magicType = SpellType.BASIC;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -69,5 +72,34 @@ public class Enemy : MonoBehaviour, IAction
         //StopAttack();
         //GetComponent<Mover>().Cancel();
     }
+
+
+    //IChannelable Interface
+    //_______________________________________________________________
+    SpellType GetSpelltype()
+    {
+        return magicType;
+    }
+
+    float DrainPower(float amount)
+    {
+        power -= amount;
+        if (power < 0)
+        {
+            Debug.Log("AAAAARGH");
+        }
+    }
+    void SetChannel(Spell spell, Channel channel)
+    {
+        Debug.Log("Getting Channeled")
+        //TODO assign spell and channel references
+    }
+    void ChannelInterrupted()
+    {
+        Debug.Log($"{this.name} Not channeled anymore")
+    }
+    //_______________________________________________________________
+
+
 
 }

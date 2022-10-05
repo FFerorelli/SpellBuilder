@@ -23,9 +23,6 @@ public class Channel : MonoBehaviour
     LineRenderer channelRenderer;
     ChannelState channelState;
     RaycastHit2D hit;
-    float elaspedTime = 0;
-    float startTime = 0;
-    float powerTimer = 1;
     // Start is called before the first frame update
     void Start()
     {
@@ -58,9 +55,12 @@ public class Channel : MonoBehaviour
     public void ChannelDestroy()
     {
         if (target != null) target.ChannelInterrupted();
+        target = null;
         if (spell != null) spell.ChannelInterrupted();
+        spell = null;
         RenderChannelDestroy();
         channelState = ChannelState.IDLE;
+        Debug.Log("CHANNEL DESTROYED");
     }
 
     private void DrainPower(IChannelable target, Spell spell)
@@ -115,7 +115,7 @@ public class Channel : MonoBehaviour
 
     void DrainPower(IChannelable target, Spell spell)
     {
-        float amount = spell.GetDrainPower();
+        float amount = spell.drainPower;
         float power = target.DrainPower(amount);
         spell.AddPower(power);     
     }
