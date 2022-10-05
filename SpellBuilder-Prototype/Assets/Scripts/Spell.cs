@@ -1,18 +1,34 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
 public class Spell
 {
-    public Spell(Channel channel, IChannelable channeled, SpellType spellType, float power_points = 0, float drainPower = 0.001)
-    {
-        public float drainPower = drainPower;
+    public float drainPower = 0.01f;
+    float power_points = 0;
+    
+    Channel channel;
+    SpellType spellType;
+    IChannelable target;
 
-        Channel channel = channel;
-        float power_points = power_points;
-        SpellType spellType = spellType;
-        IChannelable channeled = channeled;
+    public void AttachChannel(Channel channel, IChannelable target)
+    {
+        spellType = target.GetSpellType();
+        this.target = target;
+        this.channel = channel;
+    }
+
+    public bool IsChannelable()
+    {
+        return true;
     }
 
     public void ChannelInterrupted()
     {
         Debug.Log("Channel Interrupted for this spell");
+        target = null;
+        channel = null;
+        spellType = SpellType.BASIC;
     }
 
 

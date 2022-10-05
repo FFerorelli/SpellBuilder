@@ -2,24 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public Interface IChannelable
-{
-    SpellType GetSpelltype();
-    float DrainPower(float amount);
-    void SetChannel(Spell spell, Channel channel);
-    void ChannelInterrupted();
-}
-
-public enum ChannelState
-{
-    CHANNELING,
-    IDLE
-}
-
 public class Channel : MonoBehaviour
 {
     IChannelable target;
-    Spell current_spell;
+    Spell currentSpell;
     LineRenderer channelRenderer;
     ChannelState channelState;
     RaycastHit2D hit;
@@ -40,47 +26,64 @@ public class Channel : MonoBehaviour
                 IChannelable temp_target = Get_Channelable();
                 if (temp_target != null)
                 {
-                    ChannelSetup(temp_target);
+                    if (temp_target.IsChannelable())
+                        ChannelSetup(temp_target);
                 }
             }
         }
 
         if (channelState == ChannelState.CHANNELING)
         {
-            DrainPower(target,current_spell);
-            UpdateChannelRendered();
+            if (ChannelCheck())
+            {
+                DrainPower(target,currentSpell);
+                RenderChannelUpdate(target);
+            }
+            else
+            {
+                ChannelDestroy();
+            }
         }
+    }
+
+    public bool ChannelCheck()
+    {
+        if (target == null)
+            return false;
+        if (!target.IsChannelable())
+            return false;
+        if (currentSpell == null)
+            return false;
+        if (!currentSpell.IsChannelable())
+            return false;
+        return true;
     }
 
     public void ChannelDestroy()
     {
         if (target != null) target.ChannelInterrupted();
         target = null;
-        if (spell != null) spell.ChannelInterrupted();
-        spell = null;
+        if (currentSpell != null) currentSpell.ChannelInterrupted();
+        currentSpell = null;
         RenderChannelDestroy();
         channelState = ChannelState.IDLE;
         Debug.Log("CHANNEL DESTROYED");
     }
 
-    private void DrainPower(IChannelable target, Spell spell)
-    {
-        Debug.Log("DRAIN POWER(target,spell)")
-    }
-
-    private ChannelSetup(IChannelable new_target)
+    private void ChannelSetup(IChannelable new_target)
     {
         target = new_target;
         channelState = ChannelState.CHANNELING;
         RenderChannelingSetup(target);
         SpellSetup(target);
         target.SetChannel(currentSpell, this);
-        Debug.Log($"Started channel on {target.collider.name}");
+        Debug.Log("Started channel");
     }
 
-    private SpellSetup(IChannelable target)
+    private void SpellSetup(IChannelable target)
     {
-        currentSpell = new Spell(this, target, target.GetSpellType());
+        currentSpell = new Spell();
+        currentSpell.AttachChannel(this,target);
     }
 
     private IChannelable Get_Channelable()
@@ -91,26 +94,26 @@ public class Channel : MonoBehaviour
         if (hit.collider != null) 
         {
             Debug.Log("Channelable object was clicked!" + hit.collider.name);
-            return hit.collider.gameObject as IChannelable;
+            return (hit.collider.gameObject.GetComponent<IChannelable>() as IChannelable);
         }
+        else return null;
     }
 
-    private void RenderChannelUpdate(GameObject target)
+    private void RenderChannelUpdate(IChannelable target)
     {
         channelRenderer.SetPosition(0, transform.position);
-        channelRenderer.SetPosition(1, target.transform.position);
+        channelRenderer.SetPosition(1, target.GetGameObject().transform.position);
     }
 
-    private void RenderChannelingSetup(GameObject target)
+    private void RenderChannelingSetup(IChannelable target)
     {
         channelRenderer.enabled = true;
-        channelRenderer.SetPosition(0, transform.position);
-        channelRenderer.SetPosition(1, target.transform.position);
+        RenderChannelUpdate(target);
     }
 
     private void RenderChannelDestroy()
     {
-        channelRender.enabled = false;
+        channelRenderer.enabled = false;
     }
 
     void DrainPower(IChannelable target, Spell spell)

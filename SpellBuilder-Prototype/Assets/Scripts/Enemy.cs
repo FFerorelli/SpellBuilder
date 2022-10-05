@@ -14,7 +14,7 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
     [SerializeField] float timeBetweenAttacks = 1f;
 
     [SerializeField] float power = 10f;
-    [SerializeField] SpellType magicType = SpellType.BASIC;
+    [SerializeField] SpellType spellType = SpellType.BASIC;
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +32,8 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
         if (target.IsDead()) return;
         if (target != null && !IsInRange())
         {
-            MoveTo(target);
+            if (power > 0.1)
+                MoveTo(target);
         }
         else
         {
@@ -76,27 +77,47 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
 
     //IChannelable Interface
     //_______________________________________________________________
-    SpellType GetSpelltype()
+
+
+
+
+    private Channel channel;
+    bool isChanneled = false;
+    [SerializeField] bool isChannelable = true;
+
+    public SpellType GetSpellType()
     {
-        return magicType;
+        return spellType;
     }
 
-    float DrainPower(float amount)
+    public GameObject GetGameObject()
     {
-        power -= amount;
-        if (power < 0)
-        {
-            Debug.Log("AAAAARGH");
-        }
+        return this.gameObject;
     }
-    void SetChannel(Spell spell, Channel channel)
+
+    public bool IsChannelable()
     {
-        Debug.Log("Getting Channeled")
-        //TODO assign spell and channel references
+        return isChannelable;
     }
-    void ChannelInterrupted()
+
+    public float DrainPower(float amount)
     {
-        Debug.Log($"{this.name} Not channeled anymore")
+        float to_remove = Mathf.Min(power,amount);
+        power -= to_remove;
+        if (power < 0.1)
+            isChannelable = false;
+        return to_remove;
+    }
+    public void SetChannel(Spell spell, Channel channel)
+    {
+        Debug.Log("Getting Channeled");
+        this.channel = channel;
+        isChanneled = true;
+    }
+    public void ChannelInterrupted()
+    {
+        Debug.Log($"{this.name} Not channeled anymore");
+        isChanneled = false;
     }
     //_______________________________________________________________
 
