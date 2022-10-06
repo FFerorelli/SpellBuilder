@@ -61,9 +61,9 @@ public class Channel : MonoBehaviour
 
     public void ChannelDestroy()
     {
-        if (target != null) target.ChannelInterrupted();
+        target?.ChannelInterrupted();
         target = null;
-        if (currentSpell != null) currentSpell.ChannelInterrupted();
+        currentSpell?.ChannelInterrupted();
         currentSpell = null;
         RenderChannelDestroy();
         channelState = ChannelState.IDLE;
