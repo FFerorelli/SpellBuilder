@@ -108,8 +108,11 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
             isChannelable = false;
         return to_remove;
     }
-    public void SetChannel(Spell spell, Channel channel)
+    public bool ChannelAttach(Channel channel)
     {
+        if (!IsChannelable)
+            return false;
+
         Debug.Log("Getting Channeled");
         this.channel = channel;
         isChanneled = true;

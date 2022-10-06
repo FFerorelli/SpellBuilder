@@ -2,32 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum ChannelState
+{
+    CHANNELING,
+    TARGETING,
+    IDLE
+}
+
 public class Channel : MonoBehaviour
 {
     IChannelable target;
-    Spell currentSpell;
+    SpellManager spellManager;
     LineRenderer channelRenderer;
     ChannelState channelState;
     RaycastHit2D hit;
     // Start is called before the first frame update
     void Start()
     {
-        channelState = ChannelState.IDLE;
+        channelState = ChannelState.TARGETING;
         channelRenderer = GetComponent<LineRenderer>();
+        spellManager = GetComponent<SpellManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (channelState == ChannelState.IDLE)
+        if (channelState == ChannelState.TARGETING)
         {
             if (Input.GetMouseButtonDown(0))
             {
                 IChannelable temp_target = Get_Channelable();
                 if (temp_target != null)
                 {
-                    if (temp_target.IsChannelable())
-                        ChannelSetup(temp_target);
+                    ChannelSetup(temp_target);
                 }
             }
         }
@@ -36,7 +44,7 @@ public class Channel : MonoBehaviour
         {
             if (ChannelCheck())
             {
-                DrainPower(target,currentSpell);
+                DrainPower();
                 RenderChannelUpdate(target);
             }
             else
@@ -52,9 +60,7 @@ public class Channel : MonoBehaviour
             return false;
         if (!target.IsChannelable())
             return false;
-        if (currentSpell == null)
-            return false;
-        if (!currentSpell.IsChannelable())
+        if (!spellManager.isChannelable())
             return false;
         return true;
     }
@@ -63,31 +69,38 @@ public class Channel : MonoBehaviour
     {
         target?.ChannelInterrupted();
         target = null;
-        currentSpell?.ChannelInterrupted();
-        currentSpell = null;
+        spellManager.ChannelInterrupted();
         RenderChannelDestroy();
-        channelState = ChannelState.IDLE;
+        channelState = ChannelState.TARGETING;
         Debug.Log("CHANNEL DESTROYED");
     }
 
     private void ChannelSetup(IChannelable new_target)
     {
+
+        if (!spellManager.ChannelAttach(this, new_target))
+        {
+            Debug.Log("Failed to attach to spell");
+            ChannelDestroy();
+            return;
+        }
+        if (!new_target.ChannelAttach(this))
+        {
+            Debug.Log("Failed to attach to target");
+            ChannelDestroy();
+            return;
+        }
+        
         target = new_target;
         channelState = ChannelState.CHANNELING;
         RenderChannelingSetup(target);
-        SpellSetup(target);
-        target.SetChannel(currentSpell, this);
-        Debug.Log("Started channel");
-    }
 
-    private void SpellSetup(IChannelable target)
-    {
-        currentSpell = new Spell();
-        currentSpell.AttachChannel(this,target);
+        Debug.Log("Started channel");
     }
 
     private IChannelable Get_Channelable()
     {     
+        //return clicked IChannelable
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
         hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
@@ -116,11 +129,11 @@ public class Channel : MonoBehaviour
         channelRenderer.enabled = false;
     }
 
-    void DrainPower(IChannelable target, Spell spell)
+    void DrainPower()
     {
-        float amount = spell.drainPower;
+        float amount = spellManager.drainPower;
         float power = target.DrainPower(amount);
-        spell.AddPower(power);     
+        spellManager.AddPower(power, target.GetSpellType());     
     }
 
 }
