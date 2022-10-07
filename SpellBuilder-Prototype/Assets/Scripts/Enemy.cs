@@ -42,6 +42,11 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
         }
     }
 
+    public float GetPower()
+    {
+        return power;
+    }
+
     private void MoveTo(Health target)
     {
         transform.Translate(target.transform.position * Time.deltaTime * movementSpeed);
@@ -110,12 +115,13 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
     }
     public bool ChannelAttach(Channel channel)
     {
-        if (!IsChannelable)
+        if (!IsChannelable())
             return false;
 
         Debug.Log("Getting Channeled");
         this.channel = channel;
         isChanneled = true;
+        return true;
     }
     public void ChannelInterrupted()
     {

@@ -20,7 +20,7 @@ public class SpellManager : MonoBehaviour
 {
     Channel channel;
     IChannelable target;
-    [SerializeField] float basicDrainPower = 0.001;
+    [SerializeField] float basicDrainPower = 0.01f;
     [SerializeField] float basicPowerPoints = 0;
     SpellStatus spellStatus = 0;
 
@@ -33,10 +33,20 @@ public class SpellManager : MonoBehaviour
         SpellInit();
     }
 
-    public void CreateSpell(SpellType spellType = 0, float drainPower = basicDrainPower, powerPoints = basicPowerPoints)
+    public float GetPower()
     {
-        this.powerPoints = powerPoints;
-        this.drainPower = drainPower;
+        return powerPoints;
+    }
+
+    public float GetDrainPower()
+    {
+        return drainPower;
+    }
+
+    public void CreateSpell(SpellType spellType = 0)
+    {
+        this.powerPoints = basicPowerPoints;
+        this.drainPower = basicDrainPower;
         this.spellType = spellType;
         spellStatus = SpellStatus.BUILDING;
         Debug.Log($"Created a {spellType} spell of {powerPoints} power");
@@ -62,8 +72,8 @@ public class SpellManager : MonoBehaviour
         this.target = target;
         this.channel = channel;
         if (spellStatus == 0)
-            CreateSpell(target.GetSpellType())
-        return false;
+            CreateSpell(target.GetSpellType());
+        return true;
     }
 
     public void ChannelInterrupted()

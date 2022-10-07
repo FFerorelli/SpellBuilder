@@ -60,7 +60,7 @@ public class Channel : MonoBehaviour
             return false;
         if (!target.IsChannelable())
             return false;
-        if (!spellManager.isChannelable())
+        if (!spellManager.IsChannelable())
             return false;
         return true;
     }
@@ -129,9 +129,9 @@ public class Channel : MonoBehaviour
         channelRenderer.enabled = false;
     }
 
-    void DrainPower()
+    public void DrainPower()
     {
-        float amount = spellManager.drainPower;
+        float amount = spellManager.GetDrainPower();
         float power = target.DrainPower(amount);
         spellManager.AddPower(power, target.GetSpellType());     
     }
