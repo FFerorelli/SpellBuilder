@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    Health health;
     GameObject currentTarget;
     LineRenderer channelRenderer;
     bool isChanneling;
     // Start is called before the first frame update
     void Start()
     {
-        health = GetComponent<Health>();
         channelRenderer = GetComponent<LineRenderer>();
        // isChanneling = false;
     }
@@ -19,7 +17,6 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (health.IsDead()) return;
     }
 
 }

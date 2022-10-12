@@ -2,58 +2,149 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum ChannelState
+{
+    CHANNELING,
+    TARGETING,
+    IDLE
+}
+
 public class Channel : MonoBehaviour
 {
-    GameObject target;
+    IChannelable target;
+    SpellManager spellManager;
     LineRenderer channelRenderer;
-    Vector2 dir;
+    ChannelState channelState;
     RaycastHit2D hit;
-    Power power;
-    float elaspedTime = 0;
-    float startTime = 0;
-    float powerTimer = 1;
     // Start is called before the first frame update
     void Start()
     {
+        channelState = ChannelState.TARGETING;
         channelRenderer = GetComponent<LineRenderer>();
-        power = GetComponent<Power>();
+        spellManager = GetComponent<SpellManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {         
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
-            hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-            Debug.Log("Something was clicked!" + hit.collider.name);
-        }
-        if (hit.collider != null)
+        if (channelState == ChannelState.TARGETING)
         {
-            target = hit.collider.gameObject;
-            RenderChanneling(target);
-            DrainPower();
+            if (Input.GetMouseButtonDown(0))
+            {
+                IChannelable temp_target = Get_Channelable();
+                if (temp_target != null)
+                {
+                    ChannelSetup(temp_target);
+                }
+            }
+        }
+
+        if (channelState == ChannelState.CHANNELING)
+        {
+            if (ChannelCheck())
+            {
+                RenderChannelUpdate(target);
+            }
+            else
+            {
+                ChannelDestroy();
+            }
         }
     }
 
-    private void RenderChanneling(GameObject target)
+    public bool IsChanneling()
     {
-        dir = hit.collider.transform.position - transform.position;
-        channelRenderer.enabled = true;
-        channelRenderer.SetPosition(0, transform.position);
-        channelRenderer.SetPosition(1, target.transform.position);
+        return channelState == ChannelState.CHANNELING;
     }
 
-    void DrainPower()
+    public bool ChannelCheck()
     {
-        powerTimer -= Time.deltaTime;
+        if (target == null)
+            return false;
+        if (!target.IsChannelable())
+            return false;
+        if (!spellManager.IsChannelable())
+            return false;
+        return true;
+    }
+
+    public SpellType GetTargetedType()
+    {
+        if (target == null)
+            return SpellType.BASIC;
+        return target.GetSpellType();
+    }
+
+    public void ChannelDestroy()
+    {
+        target?.ChannelInterrupted();
+        target = null;
+        spellManager.ChannelInterrupted();
+        RenderChannelDestroy();
+        channelState = ChannelState.TARGETING;
+        Debug.Log("CHANNEL DESTROYED");
+    }
+
+    private void ChannelSetup(IChannelable new_target)
+    {
+
+        if (!spellManager.ChannelAttach(this, new_target))
+        {
+            Debug.Log("Failed to attach to spell");
+            ChannelDestroy();
+            return;
+        }
+        if (!new_target.ChannelAttach(this))
+        {
+            Debug.Log("Failed to attach to target");
+            ChannelDestroy();
+            return;
+        }
         
-        if (powerTimer < 0)
+        target = new_target;
+        channelState = ChannelState.CHANNELING;
+        RenderChannelingSetup(target);
+
+        Debug.Log("Started channel");
+    }
+
+    private IChannelable Get_Channelable()
+    {     
+        //return clicked IChannelable
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
+        hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
+        if (hit.collider != null) 
         {
-            powerTimer = 1;
-            power.points += 1;
+            Debug.Log("Channelable object was clicked!" + hit.collider.name);
+            return (hit.collider.gameObject.GetComponent<IChannelable>() as IChannelable);
         }
+        else return null;
+    }
+
+    private void RenderChannelUpdate(IChannelable target)
+    {
+        channelRenderer.SetPosition(0, transform.position);
+        channelRenderer.SetPosition(1, target.GetGameObject().transform.position);
+    }
+
+    private void RenderChannelingSetup(IChannelable target)
+    {
+        channelRenderer.enabled = true;
+        RenderChannelUpdate(target);
+    }
+
+    private void RenderChannelDestroy()
+    {
+        channelRenderer.enabled = false;
+    }
+
+    public float DrainPower(float amount)
+    {
+        if (target == null)
+            return 0;
+        return target.DrainPower(amount);
     }
 
 }

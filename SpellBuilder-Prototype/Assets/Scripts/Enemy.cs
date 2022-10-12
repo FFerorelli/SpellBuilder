@@ -2,17 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour, IAction
+public class Enemy : MonoBehaviour, IAction, IChannelable
 {
-    [SerializeField]
-    Health target;
+    [SerializeField] Health target; 
     Player player;
-   // Player player;
     float timeSinceLastAttack = Mathf.Infinity;
     [SerializeField] float movementSpeed = 2f;
     [SerializeField] float range = 2f;
     [SerializeField] float damage = 10f;
     [SerializeField] float timeBetweenAttacks = 1f;
+
+    [SerializeField] float power = 10f;
+    [SerializeField] SpellType spellType = SpellType.BASIC;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,13 +31,19 @@ public class Enemy : MonoBehaviour, IAction
         if (target.IsDead()) return;
         if (target != null && !IsInRange())
         {
-            MoveTo(target);
+            if (power > 0.1)
+                MoveTo(target);
         }
         else
         {
             //GetComponent<Mover>().Cancel();
             //AttackBehaviour();
         }
+    }
+
+    public float GetPower()
+    {
+        return power;
     }
 
     private void MoveTo(Health target)
@@ -69,5 +77,58 @@ public class Enemy : MonoBehaviour, IAction
         //StopAttack();
         //GetComponent<Mover>().Cancel();
     }
+
+
+    //IChannelable Interface
+    //_______________________________________________________________
+
+
+
+
+    private Channel channel;
+    bool isChanneled = false;
+    [SerializeField] bool isChannelable = true;
+
+    public SpellType GetSpellType()
+    {
+        return spellType;
+    }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
+    }
+
+    public bool IsChannelable()
+    {
+        return isChannelable;
+    }
+
+    public float DrainPower(float amount)
+    {
+        float to_remove = Mathf.Min(power,amount);
+        power -= to_remove;
+        if (power < 0.1)
+            isChannelable = false;
+        return to_remove;
+    }
+    public bool ChannelAttach(Channel channel)
+    {
+        if (!IsChannelable())
+            return false;
+
+        Debug.Log("Getting Channeled");
+        this.channel = channel;
+        isChanneled = true;
+        return true;
+    }
+    public void ChannelInterrupted()
+    {
+        Debug.Log($"{this.name} Not channeled anymore");
+        isChanneled = false;
+    }
+    //_______________________________________________________________
+
+
 
 }
