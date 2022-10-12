@@ -44,7 +44,6 @@ public class Channel : MonoBehaviour
         {
             if (ChannelCheck())
             {
-                DrainPower();
                 RenderChannelUpdate(target);
             }
             else
@@ -52,6 +51,11 @@ public class Channel : MonoBehaviour
                 ChannelDestroy();
             }
         }
+    }
+
+    public bool IsChanneling()
+    {
+        return channelState == ChannelState.CHANNELING;
     }
 
     public bool ChannelCheck()
@@ -63,6 +67,13 @@ public class Channel : MonoBehaviour
         if (!spellManager.IsChannelable())
             return false;
         return true;
+    }
+
+    public SpellType GetTargetedType()
+    {
+        if (target == null)
+            return SpellType.BASIC;
+        return target.GetSpellType();
     }
 
     public void ChannelDestroy()
@@ -129,11 +140,11 @@ public class Channel : MonoBehaviour
         channelRenderer.enabled = false;
     }
 
-    public void DrainPower()
+    public float DrainPower(float amount)
     {
-        float amount = spellManager.GetDrainPower();
-        float power = target.DrainPower(amount);
-        spellManager.AddPower(power, target.GetSpellType());     
+        if (target == null)
+            return 0;
+        return target.DrainPower(amount);
     }
 
 }

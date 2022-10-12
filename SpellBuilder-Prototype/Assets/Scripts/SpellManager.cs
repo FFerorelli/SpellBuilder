@@ -6,6 +6,7 @@ using UnityEngine;
 public enum SpellType
 {
     BASIC,
+    SAME,
     FIRE,
     WATER
 }
@@ -20,51 +21,43 @@ public class SpellManager : MonoBehaviour
 {
     Channel channel;
     IChannelable target;
-    [SerializeField] float basicDrainPower = 0.01f;
-    [SerializeField] float basicPowerPoints = 0;
-    SpellStatus spellStatus = 0;
 
-    [SerializeField] float drainPower;
-    [SerializeField] float powerPoints;
-    [SerializeField] SpellType spellType;
+    public SpellStatus spellStatus = 0;
+    public SpellType spellType = 0;
+    public float spellPower = 0;
+
 
     void Start()
     {
-        SpellInit();
+        Initialize();
     }
 
     public float GetPower()
     {
-        return powerPoints;
-    }
-
-    public float GetDrainPower()
-    {
-        return drainPower;
+        if (spellStatus == 0)
+            return 0;
+        else
+            return spellPower;
     }
 
     public void CreateSpell(SpellType spellType = 0)
     {
-        this.powerPoints = basicPowerPoints;
-        this.drainPower = basicDrainPower;
+        this.spellPower = 0;
         this.spellType = spellType;
-        spellStatus = SpellStatus.BUILDING;
-        Debug.Log($"Created a {spellType} spell of {powerPoints} power");
+        this.spellStatus = SpellStatus.BUILDING;
+        Debug.Log($"Created a {spellType} spell of {spellPower} power");
     }
 
-    public void ReleaseSpell()
+    public void SpellCancel()
     {
-        Debug.Log($"Releasing a {spellType} spell of {powerPoints} power");
-        SpellInit();
+        Initialize();
     }
 
-    public void SpellInit()
+    public void Initialize()
     {
         target = null;
-        drainPower = 0;
-        powerPoints = 0;
-        spellType = 0;
         spellStatus = 0;
+        spellPower = 0;
     }
 
     public bool ChannelAttach(Channel channel, IChannelable target)
@@ -86,10 +79,32 @@ public class SpellManager : MonoBehaviour
         return true;
     }
 
-    public void AddPower(float amount, SpellType spellType)
+    public void DrainPower(float amount)
     {
-        powerPoints += amount;
-        //manage spell type
+        float obtained = channel.DrainPower(amount);
+        SpellType type = channel.GetTargetedType();
+        AddPower(obtained, type);
+    }
+
+    public float AddPower(float amount, SpellType incomingType = SpellType.SAME)
+    {
+        if (spellStatus == 0)
+            return 0;
+        if (incomingType == SpellType.SAME)
+            {
+                spellPower += amount;
+                return amount;
+            }
+        else if (incomingType == this.spellType)
+            {
+                spellPower += amount;
+                return amount;
+            }
+        else
+            {
+                Debug.Log($"Trying to add {incomingType} power to a {spellType} spell");
+                return 0;
+            }
     }
 
 }

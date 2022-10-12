@@ -6,13 +6,13 @@ using TMPro;
 public class SpellDisplay : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI Text;
-    SpellManager spellManager;
+    [SerializeField] SpellManager spellManager;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        spellManager = GetComponent<SpellManager>();
+        spellManager = GetComponentInParent<SpellManager>();
     }
 
     // Update is called once per frame

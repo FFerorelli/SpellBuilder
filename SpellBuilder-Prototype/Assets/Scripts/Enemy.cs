@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, IAction, IChannelable
 {
-    [SerializeField]
-    Health target;
+    [SerializeField] Health target; 
     Player player;
     float timeSinceLastAttack = Mathf.Infinity;
     [SerializeField] float movementSpeed = 2f;
