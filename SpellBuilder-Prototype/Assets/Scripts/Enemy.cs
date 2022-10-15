@@ -6,14 +6,12 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
 {
     [SerializeField] Health target; 
     Player player;
-    float timeSinceLastAttack = Mathf.Infinity;
     [SerializeField] float movementSpeed = 2f;
     [SerializeField] float range = 2f;
     [SerializeField] float damage = 10f;
-    [SerializeField] float timeBetweenAttacks = 1f;
 
     [SerializeField] float power = 10f;
-    [SerializeField] SpellType spellType = SpellType.BASIC;
+    [SerializeField] SpellType spellType;
 
     // Start is called before the first frame update
     void Start()
@@ -25,7 +23,6 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
     // Update is called once per frame
     void Update()
     {
-        timeSinceLastAttack += Time.deltaTime;
 
         if (target == null) return;
         if (target.IsDead()) return;
@@ -63,14 +60,6 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
         return Vector3.Distance(transform.position, target.transform.position) < range;
     }
 
-    public bool CanAttack(GameObject combatTarget)
-    {
-        if (combatTarget == null) return false;
-
-        Health targetToTest = combatTarget.GetComponent<Health>();
-        return targetToTest != null && !targetToTest.IsDead();
-    }
-
     public void Cancel()
     {
         target = null;
@@ -89,35 +78,34 @@ public class Enemy : MonoBehaviour, IAction, IChannelable
     bool isChanneled = false;
     [SerializeField] bool isChannelable = true;
 
-    public SpellType GetSpellType()
-    {
-        return spellType;
-    }
+    public SpellType GetSpellType() => spellType;
 
-    public GameObject GetGameObject()
+    public GameObject GetGameObject() => this.gameObject;
+
+    public Vector2 GetPosition()
     {
-        return this.gameObject;
+        return this.gameObject.transform.position;
     }
 
     public bool IsChannelable()
     {
-        return isChannelable;
+        return (isChannelable && (power > 0.1));
     }
 
     public float DrainPower(float amount)
     {
         float to_remove = Mathf.Min(power,amount);
         power -= to_remove;
-        if (power < 0.1)
-            isChannelable = false;
         return to_remove;
     }
     public bool ChannelAttach(Channel channel)
     {
         if (!IsChannelable())
             return false;
+        if (isChanneled)
+            return false;
 
-        Debug.Log("Getting Channeled");
+        Debug.Log(this.name + "Getting Channeled");
         this.channel = channel;
         isChanneled = true;
         return true;
