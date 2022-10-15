@@ -1,15 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
-
-public enum SpellType
-{
-    BASIC,
-    SAME,
-    FIRE,
-    WATER
-}
 
 public enum SpellStatus
 {
@@ -19,13 +12,10 @@ public enum SpellStatus
 
 public class SpellManager : MonoBehaviour
 {
-    Channel channel;
-    IChannelable target;
-
+    ChannelManager channelManager;
     public SpellStatus spellStatus = 0;
-    public SpellType spellType = 0;
+    public SpellType spellType = null;
     public float spellPower = 0;
-
 
     void Start()
     {
@@ -40,7 +30,7 @@ public class SpellManager : MonoBehaviour
             return spellPower;
     }
 
-    public void CreateSpell(SpellType spellType = 0)
+    public void CreateSpell(SpellType spellType = null)
     {
         this.spellPower = 0;
         this.spellType = spellType;
@@ -55,18 +45,8 @@ public class SpellManager : MonoBehaviour
 
     public void Initialize()
     {
-        target = null;
         spellStatus = 0;
         spellPower = 0;
-    }
-
-    public bool ChannelAttach(Channel channel, IChannelable target)
-    {
-        this.target = target;
-        this.channel = channel;
-        if (spellStatus == 0)
-            CreateSpell(target.GetSpellType());
-        return true;
     }
 
     public void ChannelInterrupted()
@@ -79,26 +59,37 @@ public class SpellManager : MonoBehaviour
         return true;
     }
 
-    public void DrainPower(float amount)
+    public void InvertSpellType()
     {
-        float obtained = channel.DrainPower(amount);
-        SpellType type = channel.GetTargetedType();
-        AddPower(obtained, type);
+        spellType = spellType.inverse;
     }
 
-    public float AddPower(float amount, SpellType incomingType = SpellType.SAME)
+    public void RevertChannel()
     {
-        if (spellStatus == 0)
-            return 0;
-        if (incomingType == SpellType.SAME)
+        Debug.Log("REVERTING A CHANNEL (TODO)");
+    }
+
+    public float AddPower(ManaPool pool, bool ignoreType = false)
+    {
+        return AddPower(pool.amount, pool.type, ignoreType);
+    }
+
+    public float AddPower(float amount, SpellType incomingType = null, bool ignoreType = false)
+    {
+        if (spellStatus == SpellStatus.IDLE)
+        {
+            CreateSpell(incomingType);
+        }
+
+        if (ignoreType || incomingType == this.spellType)
             {
                 spellPower += amount;
                 return amount;
             }
-        else if (incomingType == this.spellType)
+        else if (incomingType == null)
             {
-                spellPower += amount;
-                return amount;
+                Debug.Log($"Trying to add NULL power to a {spellType} spell");
+                return 0;
             }
         else
             {
