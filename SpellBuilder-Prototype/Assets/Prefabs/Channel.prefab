@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1c845cf434ac254e92ef3e3ad308e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  channelState: 0
 --- !u!120 &6747296610219668527
 LineRenderer:
   m_ObjectHideFlags: 0

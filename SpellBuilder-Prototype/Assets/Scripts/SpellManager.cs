@@ -12,10 +12,17 @@ public enum SpellStatus
 
 public class SpellManager : MonoBehaviour
 {
-    ChannelManager channelManager;
     public SpellStatus spellStatus = 0;
-    public SpellType spellType = null;
-    public float spellPower = 0;
+    public SpellTypeVariable spellType;
+    public FloatVariable spellPower;
+
+    ChannelManager channelManager;
+
+
+    void Awake()
+    {
+        channelManager = GetComponent<ChannelManager>();
+    }
 
     void Start()
     {
@@ -27,15 +34,15 @@ public class SpellManager : MonoBehaviour
         if (spellStatus == 0)
             return 0;
         else
-            return spellPower;
+            return spellPower.value;
     }
 
     public void CreateSpell(SpellType spellType = null)
     {
-        this.spellPower = 0;
-        this.spellType = spellType;
+        this.spellPower.value = 0;
+        this.spellType.type = spellType;
         this.spellStatus = SpellStatus.BUILDING;
-        Debug.Log($"Created a {spellType} spell of {spellPower} power");
+        Debug.Log($"Created a {spellType.type} spell of {spellPower.value} power");
     }
 
     public void SpellCancel()
@@ -46,12 +53,19 @@ public class SpellManager : MonoBehaviour
     public void Initialize()
     {
         spellStatus = 0;
-        spellPower = 0;
+        spellPower.value = 0;
+        spellType.type = null;
     }
 
     public void ChannelInterrupted()
     {
 
+    }
+
+    public void DrainFromChannels(float amountPerChannel)
+    {
+        if (channelManager != null)
+            channelManager.DrainFromChannels(amountPerChannel);
     }
 
     public bool IsChannelable()
@@ -61,7 +75,7 @@ public class SpellManager : MonoBehaviour
 
     public void InvertSpellType()
     {
-        spellType = spellType.inverse;
+        spellType.type = spellType.type.inverse;
     }
 
     public void RevertChannel()
@@ -81,19 +95,19 @@ public class SpellManager : MonoBehaviour
             CreateSpell(incomingType);
         }
 
-        if (ignoreType || incomingType == this.spellType)
+        if (ignoreType || incomingType == this.spellType.type)
             {
-                spellPower += amount;
+                spellPower.value += amount;
                 return amount;
             }
         else if (incomingType == null)
             {
-                Debug.Log($"Trying to add NULL power to a {spellType} spell");
+                Debug.Log($"Trying to add NULL power to a {spellType.type} spell");
                 return 0;
             }
         else
             {
-                Debug.Log($"Trying to add {incomingType} power to a {spellType} spell");
+                Debug.Log($"Trying to add {incomingType} power to a {spellType.type} spell");
                 return 0;
             }
     }

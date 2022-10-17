@@ -22,6 +22,18 @@ public class ChannelRenderer : MonoBehaviour
             RenderChannelUpdate();
     }
 
+    void OnDisable()
+    {
+        if (lineRenderer != null)
+            lineRenderer.enabled = false;
+    }
+
+    void OnEnable()
+    {
+        if (lineRenderer != null)
+            lineRenderer.enabled = true;
+    }
+
     private void RenderChannelUpdate()
     {
         lineRenderer.SetPosition(0, channel.GetEndpoint(0));

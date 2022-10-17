@@ -47,7 +47,7 @@
      <Compile Include="Assets\Scripts\GameEventListener.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\SpellDisplay.cs" />
-     <Compile Include="Assets\SpellTypes\SpellType.cs" />
+     <Compile Include="Assets\VariablesSO\SpellTypes\SpellType.cs" />
      <Compile Include="Assets\Scripts\GameEvent.cs" />
      <Compile Include="Assets\Samples\Universal RP\12.1.7\URP Package Samples\LensFlares\Scripts\ScreenSpacePlacement.cs" />
      <Compile Include="Assets\Scripts\TreeManager.cs" />
@@ -59,9 +59,14 @@
      <Compile Include="Assets\Scripts\GameController.cs" />
      <Compile Include="Assets\Scripts\MonoSingleton.cs" />
      <Compile Include="Assets\Scripts\ChannelManager.cs" />
+     <Compile Include="Assets\Scripts\Effects\EffectManager.cs" />
      <Compile Include="Assets\Scripts\IAction.cs" />
      <Compile Include="Assets\Scripts\Health.cs" />
      <Compile Include="Assets\Scripts\SpellManager.cs" />
+     <Compile Include="Assets\Scripts\Effects\EffectSO.cs" />
+     <Compile Include="Assets\Scripts\Effects\DrainEffectSO.cs" />
+     <Compile Include="Assets\VariablesSO\FloatVariable.cs" />
+     <Compile Include="Assets\VariablesSO\SpellTypeVariable.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
