@@ -5,19 +5,11 @@ using UnityEngine;
 [CreateAssetMenu]
 public class EffectSO : ScriptableObject
 {
-    public bool isRecurrent;
-    public float timeToWait;
-    
-    public virtual void Activate(SpellManager spellManager)
+
+    public virtual void Activate(MonoBehaviour caller)
     {
-        Debug.Log("Activating Empty effect");
     }
-    public virtual void Deactivate(SpellManager spellManager)
+    public virtual void Deactivate(MonoBehaviour caller)
     {
-        Debug.Log("Deactivating Empty effect");
-    }
-    public virtual void Apply(SpellManager spellManager)
-    {
-        Debug.Log("Applying Empty effect");
     }
 }

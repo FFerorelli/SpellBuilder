@@ -7,72 +7,44 @@ using UnityEngine.Events;
 public class EffectManager : MonoBehaviour
 {
     [SerializeField] public List<EffectSO> effectSOList;
-    public List<Coroutine> coroutineList;
-    SpellManager spellManager;
-    
-    void Awake()
-    {
-        spellManager = GetComponent<SpellManager>();
-    }
-
-    void Start()
-    {
-        StartAllEffects();
-    }
-
 
     public void StartAllEffects()
     {
-        foreach (EffectSO effectSO in effectSOList)
-            ActivateEffect(effectSO);
+        for(var i = effectSOList.Count - 1; i >= 0; i--)
+        {
+            effectSOList[i].Activate(this);
+        }
+    }
+
+    public void StopAllEffects()
+    {
+        for(var i = effectSOList.Count -1; i >= 0; i--)
+        {
+            Debug.Log("STOPPING EFFECT" + effectSOList[i].name);
+            effectSOList[i].Deactivate(this);
+        }
     }
 
     public void AddEffect(EffectSO effectSO)
     {
         effectSOList.Add(effectSO);
-        ActivateEffect(effectSO);
+        effectSO.Activate(this);
     }
 
     public void RemoveEffect(EffectSO effectSO)
     {
         effectSOList.Remove(effectSO);
-        DeactivateEffect(effectSO);
+        effectSO.Deactivate(this);
     }
 
-    public void ActivateEffect(EffectSO effectSO)
-    {
-        effectSO.Activate(spellManager);
-        if (effectSO.isRecurrent)
-            StartCoroutine(RecurringApplicator(effectSO));
-    }
-
-    public void DeactivateEffect(EffectSO effectSO)
-    {
-        if (effectSO.isRecurrent)
-            StopCoroutine(RecurringApplicator(effectSO));
-        effectSO.Deactivate(spellManager);
-
-    }
-
-
-    public void OnEnable()
+    void OnEnable()
     {
         StartAllEffects();
     }
 
-    public void OnDisable()
+    void OnDisable()
     {
-        foreach (EffectSO effectSO in effectSOList)
-            DeactivateEffect(effectSO);
-    }
-
-    public IEnumerator RecurringApplicator(EffectSO effectSO) 
-    {
-        while(true)
-        {
-            effectSO.Apply(spellManager);
-            yield return new WaitForSeconds(effectSO.timeToWait);
-        }
+        StopAllEffects();
     }
 
 }

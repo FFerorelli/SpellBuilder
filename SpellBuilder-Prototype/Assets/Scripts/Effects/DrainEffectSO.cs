@@ -3,19 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu]
-public class DrainEffectSO : EffectSO
+public class DrainEffectSO : RecurrentEffectSO
 {
-    public FloatVariable drainPower;
-    public override void Activate(SpellManager spellManager)
+    public float drainPower;
+    SpellManager spellManager;
+
+    public override void Activate(MonoBehaviour caller)
     {
-        Debug.Log("Activating Drain effect");
+        spellManager = caller.GetComponent<SpellManager>();
+        if (caller == null)
+        {
+            Debug.Log("Missing SpellManager component");
+            return;
+        }
+        base.Activate(caller);
     }
-    public override void Deactivate(SpellManager spellManager)
+
+    public override void Apply(MonoBehaviour caller)
     {
-        Debug.Log("Deactivating Drain effect");
+        spellManager.DrainFromChannels(drainPower);
     }
-    public override void Apply(SpellManager spellManager)
-    {
-        spellManager.DrainFromChannels(drainPower.value);
-    }
+
+
 }

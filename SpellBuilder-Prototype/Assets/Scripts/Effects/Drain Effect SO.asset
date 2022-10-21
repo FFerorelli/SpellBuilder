@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6edcad974fa36224b81dfd15f0fd6f96, type: 3}
-  m_Name: DrainEffectSO
+  m_Name: Drain Effect SO
   m_EditorClassIdentifier: 
   isRecurrent: 1
-  timeToWait: 0.1
-  drainPower: {fileID: 11400000, guid: de19e2f7a592b024bb6f8ef6b860ae3e, type: 2}
+  timeToWait: 1
+  drainPower: 10

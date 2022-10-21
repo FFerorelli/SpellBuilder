@@ -1866,7 +1866,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effectSOList:
-  - {fileID: 11400000, guid: 1214d89c430e3884087b1b87c8fc6f68, type: 2}
+  - {fileID: 11400000, guid: a0ef2f50157b1ce44bd67a0cafda0e6e, type: 2}
 --- !u!114 &736762744
 MonoBehaviour:
   m_ObjectHideFlags: 0
