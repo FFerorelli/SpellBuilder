@@ -6,23 +6,40 @@ using UnityEngine;
 public class DrainEffectSO : RecurrentEffectSO
 {
     public float drainPower;
-    SpellManager spellManager;
 
-    public override void Activate(MonoBehaviour caller)
+    void Start()
     {
-        spellManager = caller.GetComponent<SpellManager>();
-        if (caller == null)
-        {
-            Debug.Log("Missing SpellManager component");
-            return;
-        }
-        base.Activate(caller);
+        if (maxApplications <= 0) maxApplications = -1;
     }
 
-    public override void Apply(MonoBehaviour caller)
+    public override EffectObject CreateEffect(MonoBehaviour caller)
+    {
+        return new DrainEffectObject(this, caller);
+    }
+
+}
+
+public class DrainEffectObject : RecurrentEffectObject
+{
+    protected SpellManager spellManager;
+    protected float drainPower;
+
+    public DrainEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
+    {
+        var castedEffectSO = (effectSO as DrainEffectSO);
+        this.drainPower = castedEffectSO.drainPower;
+    }
+
+    public override void Activate()
+    {
+        spellManager = caller.GetComponent<SpellManager>();
+        if (spellManager == null)
+            Debug.Log("EFFECT IS MISSING A SPELLMANAGER COMPONENT");
+        base.Activate();
+    }
+
+    public override void Apply()
     {
         spellManager.DrainFromChannels(drainPower);
     }
-
-
 }

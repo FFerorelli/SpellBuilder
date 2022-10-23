@@ -5,35 +5,73 @@ using UnityEngine;
 [CreateAssetMenu]
 public class RecurrentEffectSO : EffectSO
 {
-    public bool isRecurrent;
-    public float timeToWait;
-    private Coroutine gameCoroutine = null;
-    //WATCH OUT THIS WILL BREAK IF WE USE THESE EFFECT FOR MULTIPLE ENEMIES
+    [SerializeField] public bool waitBeforeFirstApply;
+    [SerializeField] public float timeBetweenApply;
+    [SerializeField] public int maxApplications;
 
     
-    public override void Activate(MonoBehaviour caller)
+    public override EffectObject CreateEffect(MonoBehaviour caller)
     {
-        base.Activate(caller);
-        if (gameCoroutine == null)
-            gameCoroutine = caller.StartCoroutine(RecurrentApply(caller));
+        return new RecurrentEffectObject(this, caller);
     }
-    public override void Deactivate(MonoBehaviour caller)
-    {
-        base.Deactivate(caller);
-        caller.StopCoroutine(gameCoroutine);
-        gameCoroutine = null;
-    }
+}
 
-    public IEnumerator RecurrentApply(MonoBehaviour caller)
+
+public class RecurrentEffectObject : EffectObject
+{
+    protected bool waitBeforeFirstApply;
+    protected int maxApplications;
+    protected int remainingApplications;
+    protected float timeBetweenApply;
+    protected Coroutine gameCoroutine = null;
+    
+    public RecurrentEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
     {
-        while(true)
+        var castedEffectSO = (effectSO as RecurrentEffectSO);
+        this.waitBeforeFirstApply = castedEffectSO.waitBeforeFirstApply;
+        this.timeBetweenApply = castedEffectSO.timeBetweenApply;
+        this.maxApplications = castedEffectSO.maxApplications;
+        this.remainingApplications = castedEffectSO.maxApplications;
+    }
+    
+    public override void Activate()
+    {
+        if (gameCoroutine == null)
+            gameCoroutine = caller.StartCoroutine(RecurrentApply());
+
+        Debug.Log(gameCoroutine);
+        base.Activate();
+
+    }
+    public override void Deactivate()
+    {
+        base.Deactivate();
+        if (gameCoroutine != null)
         {
-            Apply(caller);
-            yield return new WaitForSeconds(timeToWait);
+            caller.StopCoroutine(gameCoroutine);
+            gameCoroutine = null;
         }
     }
 
-    public virtual void Apply(MonoBehaviour caller)
+    public IEnumerator RecurrentApply()
+    {
+        if (waitBeforeFirstApply)
+        {         
+            yield return new WaitForSeconds(timeBetweenApply);
+            waitBeforeFirstApply = false;
+        }
+
+        while(remainingApplications > 0 || remainingApplications < 0)
+        {
+            Debug.Log(caller + " has " + remainingApplications + " remaining drains");
+            Apply();
+            remainingApplications -=1;
+            yield return new WaitForSeconds(timeBetweenApply);
+        }
+        Deactivate();
+    }
+
+    public virtual void Apply()
     {
         Debug.Log("Applying Unspecified Recurrent Effect");
     }
