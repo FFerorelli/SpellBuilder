@@ -7,7 +7,9 @@ using UnityEngine.Events;
 public class EffectManager : MonoBehaviour
 {
     [SerializeField] public List<EffectSO> effectSOList;
+    [SerializeField] public List<EffectObject> effectObjectList;
 
+/*
     public void StartAllEffects()
     {
         for(var i = effectSOList.Count - 1; i >= 0; i--)
@@ -24,7 +26,7 @@ public class EffectManager : MonoBehaviour
             effectSOList[i].Deactivate(this);
         }
     }
-
+*/
     public void AddEffect(EffectSO effectSO)
     {
         effectSOList.Add(effectSO);
