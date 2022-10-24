@@ -2,15 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu]
-public class DrainEffectSO : RecurrentEffectSO
+[CreateAssetMenu (menuName = "Effects/SpellManagerEffects/DrainEffect")]
+public class DrainEffectSO : RecurrentEffectSO<SpellManager>
 {
     public float drainPower;
-
-    void Start()
-    {
-        if (maxApplications <= 0) maxApplications = -1;
-    }
 
     public override EffectObject CreateEffect(MonoBehaviour caller)
     {
@@ -19,9 +14,8 @@ public class DrainEffectSO : RecurrentEffectSO
 
 }
 
-public class DrainEffectObject : RecurrentEffectObject
+public class DrainEffectObject : RecurrentEffectObject<SpellManager>
 {
-    protected SpellManager spellManager;
     protected float drainPower;
 
     public DrainEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
@@ -30,16 +24,8 @@ public class DrainEffectObject : RecurrentEffectObject
         this.drainPower = castedEffectSO.drainPower;
     }
 
-    public override void Activate()
-    {
-        spellManager = caller.GetComponent<SpellManager>();
-        if (spellManager == null)
-            Debug.Log("EFFECT IS MISSING A SPELLMANAGER COMPONENT");
-        base.Activate();
-    }
-
     public override void Apply()
     {
-        spellManager.DrainFromChannels(drainPower);
+        targetComponent.DrainFromChannels(drainPower);
     }
 }

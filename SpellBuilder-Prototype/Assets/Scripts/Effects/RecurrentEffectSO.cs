@@ -2,29 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu]
-public class RecurrentEffectSO : EffectSO
+public class RecurrentEffectSO<TargetComponent> : EffectSO
+    where TargetComponent : MonoBehaviour
 {
     [SerializeField] public bool waitBeforeFirstApply;
     [SerializeField] public float timeBetweenApply;
+    [SerializeField] public float deactivationTime;
     [SerializeField] public int maxApplications;
 
     
     public override EffectObject CreateEffect(MonoBehaviour caller)
     {
-        return new RecurrentEffectObject(this, caller);
+        return new RecurrentEffectObject<TargetComponent>(this, caller);
     }
 }
 
 
-public class RecurrentEffectObject : EffectObject
+public class RecurrentEffectObject<TargetComponent> : EffectObject
+    where TargetComponent : MonoBehaviour
 {
     protected bool waitBeforeFirstApply;
     protected int maxApplications;
-    protected int remainingApplications;
     protected float timeBetweenApply;
+    protected float deactivationTime;
+
+    protected int remainingApplications;
     protected Coroutine gameCoroutine = null;
-    
+    protected TargetComponent targetComponent;
+
+
     public RecurrentEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
     {
         var castedEffectSO = (effectSO as RecurrentEffectSO);
@@ -32,25 +38,40 @@ public class RecurrentEffectObject : EffectObject
         this.timeBetweenApply = castedEffectSO.timeBetweenApply;
         this.maxApplications = castedEffectSO.maxApplications;
         this.remainingApplications = castedEffectSO.maxApplications;
+        this.deactivationTime = castedEffectSO.deactivationTime;
+
+        this.targetComponent = caller.GetComponent<TargetComponent>();
+        if (targetComponent == null)
+        {
+            Debug.Log("WARNING: EFFECT TARGET IS MISSING THE REQUIRED COMPONENT");
+        }
+
     }
     
     public override void Activate()
     {
         if (gameCoroutine == null)
             gameCoroutine = caller.StartCoroutine(RecurrentApply());
-
-        Debug.Log(gameCoroutine);
+        if (deactivationTime > 0)
+            caller.StartCoroutine(StopAfterSeconds(deactivationTime));
         base.Activate();
 
     }
     public override void Deactivate()
     {
-        base.Deactivate();
         if (gameCoroutine != null)
         {
             caller.StopCoroutine(gameCoroutine);
             gameCoroutine = null;
         }
+        base.Deactivate();
+
+    }
+
+    public IEnumerator StopAfterSeconds(float timeBeforeStop)
+    {
+        yield return new WaitForSeconds(timeBeforeStop);
+        Deactivate();
     }
 
     public IEnumerator RecurrentApply()
@@ -75,4 +96,5 @@ public class RecurrentEffectObject : EffectObject
     {
         Debug.Log("Applying Unspecified Recurrent Effect");
     }
+
 }
