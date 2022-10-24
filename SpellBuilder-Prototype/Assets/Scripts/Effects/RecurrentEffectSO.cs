@@ -33,7 +33,7 @@ public class RecurrentEffectObject<TargetComponent> : EffectObject
 
     public RecurrentEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
     {
-        var castedEffectSO = (effectSO as RecurrentEffectSO);
+        var castedEffectSO = (effectSO as RecurrentEffectSO<TargetComponent>);
         this.waitBeforeFirstApply = castedEffectSO.waitBeforeFirstApply;
         this.timeBetweenApply = castedEffectSO.timeBetweenApply;
         this.maxApplications = castedEffectSO.maxApplications;
@@ -84,7 +84,6 @@ public class RecurrentEffectObject<TargetComponent> : EffectObject
 
         while(remainingApplications > 0 || remainingApplications < 0)
         {
-            Debug.Log(caller + " has " + remainingApplications + " remaining drains");
             Apply();
             remainingApplications -=1;
             yield return new WaitForSeconds(timeBetweenApply);

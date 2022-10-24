@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6edcad974fa36224b81dfd15f0fd6f96, type: 3}
-  m_Name: BasicDrainEffect
+  m_Script: {fileID: 11500000, guid: ed018cee43da11043a1e80f878170dca, type: 3}
+  m_Name: DrainBurst
   m_EditorClassIdentifier: 
-  name: DRAIN EFFECT SCRIPTABLE OBJECT
-  waitBeforeFirstApply: 1
-  timeBetweenApply: 0.3
+  name: NESTED DRAIN SCRIPTABLE OBJECT
+  waitBeforeFirstApply: 0
+  timeBetweenApply: 4
   deactivationTime: 0
-  maxApplications: 3
-  drainPower: 10
+  maxApplications: -1
+  nestedEffect: {fileID: 11400000, guid: 8d9b6bc1cec98974fa3d400dd91dc7d4, type: 2}

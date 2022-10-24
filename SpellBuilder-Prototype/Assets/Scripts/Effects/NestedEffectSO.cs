@@ -2,11 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu (menuName = "Effects/EffectEffect")]
-public class NestedEffectSO<T> : RecurrentEffectSO<EffectManager>
-    where T : MonoBehaviour
+[CreateAssetMenu (menuName = "Effects/NestedEffect")]
+public class NestedEffectSO : RecurrentEffectSO<EffectManager>
 {
-    public RecurrentEffectSO<EffectManager> nestedEffect;
+    public EffectSO nestedEffect;
 
     public override EffectObject CreateEffect(MonoBehaviour caller)
     {
@@ -15,14 +14,14 @@ public class NestedEffectSO<T> : RecurrentEffectSO<EffectManager>
 
 }
 
-public class NestedEffectObject<T> : RecurrentEffectObject<EffectManager>
-    where T : MonoBehaviour
-{
-    protected RecurrentEffectSO<T> nestedEffect;
 
-    public EffectEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
+public class NestedEffectObject : RecurrentEffectObject<EffectManager>
+{
+    protected EffectSO nestedEffect;
+
+    public NestedEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
     {
-        var castedEffectSO = (effectSO as NestedEffectSO<T>);
+        var castedEffectSO = (effectSO as NestedEffectSO);
         this.nestedEffect = castedEffectSO.nestedEffect;
     }
 

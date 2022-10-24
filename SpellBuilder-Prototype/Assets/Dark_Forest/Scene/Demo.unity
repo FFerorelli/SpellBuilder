@@ -1866,7 +1866,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialEffectsSOList:
-  - {fileID: 11400000, guid: 8d9b6bc1cec98974fa3d400dd91dc7d4, type: 2}
+  - {fileID: 11400000, guid: 14fa560e79f0c834b9fbf1c053ca6191, type: 2}
 --- !u!114 &736762744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3573,6 +3573,7 @@ GameObject:
   - component: {fileID: 1269578332}
   - component: {fileID: 1269578331}
   - component: {fileID: 1269578338}
+  - component: {fileID: 1269578339}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -3740,6 +3741,20 @@ MonoBehaviour:
   power: 1000
   spellType: {fileID: 11400000, guid: 4938105848114f1469b612fdaa054b32, type: 2}
   isChannelable: 1
+--- !u!114 &1269578339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1269578330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf1a833fe653474459625770b1282a07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initialEffectsSOList:
+  - {fileID: 11400000, guid: 8d9b6bc1cec98974fa3d400dd91dc7d4, type: 2}
 --- !u!1 &1303454726
 GameObject:
   m_ObjectHideFlags: 0
