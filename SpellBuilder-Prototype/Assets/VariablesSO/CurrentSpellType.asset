@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6f8d0f81eeb7cb498654e262b38017a, type: 3}
   m_Name: Current Spell Type
   m_EditorClassIdentifier: 
-  type: {fileID: 11400000, guid: 4938105848114f1469b612fdaa054b32, type: 2}
+  type: {fileID: 11400000, guid: dcc90524820473746ab7f0bb1efba7fb, type: 2}
   Name: Current Spell Type

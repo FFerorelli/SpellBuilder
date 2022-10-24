@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61b1c7e30aa72e2469ec5cc71c9e4cfb, type: 3}
   m_Name: Spell Power
   m_EditorClassIdentifier: 
-  value: 180
+  value: 2600
   Name: Spell Power

@@ -6,35 +6,47 @@ using UnityEngine.Events;
 
 public class EffectManager : MonoBehaviour
 {
-    [SerializeField] public List<EffectSO> effectSOList;
+    [SerializeField] List<EffectSO> initialEffectsSOList;
+    List<EffectObject> effectObjectList = new List<EffectObject>();
+
+    void Start()
+    {
+        AddInitialEffects();
+    }
+
+    public void AddInitialEffects()
+    {
+        for(var i = initialEffectsSOList.Count - 1; i >= 0; i--)
+        {
+            AddEffect(initialEffectsSOList[i]);
+        }
+    }
 
     public void StartAllEffects()
     {
-        for(var i = effectSOList.Count - 1; i >= 0; i--)
+        for(var i = effectObjectList.Count - 1; i >= 0; i--)
         {
-            effectSOList[i].Activate(this);
+            effectObjectList[i].Activate();
         }
     }
 
     public void StopAllEffects()
     {
-        for(var i = effectSOList.Count -1; i >= 0; i--)
+        for(var i = effectObjectList.Count -1; i >= 0; i--)
         {
-            Debug.Log("STOPPING EFFECT" + effectSOList[i].name);
-            effectSOList[i].Deactivate(this);
+            Debug.Log("STOPPING EFFECT" + effectObjectList[i].name);
+            effectObjectList[i].Deactivate();
         }
     }
 
     public void AddEffect(EffectSO effectSO)
     {
-        effectSOList.Add(effectSO);
-        effectSO.Activate(this);
-    }
-
-    public void RemoveEffect(EffectSO effectSO)
-    {
-        effectSOList.Remove(effectSO);
-        effectSO.Deactivate(this);
+        if (effectSO != null)
+        {
+            EffectObject effect = effectSO.CreateEffect(this);
+            effectObjectList.Add(effect);
+            effect.Activate();
+        }            
     }
 
     void OnEnable()

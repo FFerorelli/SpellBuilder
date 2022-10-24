@@ -2,27 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu]
-public class DrainEffectSO : RecurrentEffectSO
+[CreateAssetMenu (menuName = "Effects/SpellManagerEffects/DrainEffect")]
+public class DrainEffectSO : RecurrentEffectSO<SpellManager>
 {
     public float drainPower;
-    SpellManager spellManager;
 
-    public override void Activate(MonoBehaviour caller)
+    public override EffectObject CreateEffect(MonoBehaviour caller)
     {
-        spellManager = caller.GetComponent<SpellManager>();
-        if (caller == null)
-        {
-            Debug.Log("Missing SpellManager component");
-            return;
-        }
-        base.Activate(caller);
+        return new DrainEffectObject(this, caller);
     }
 
-    public override void Apply(MonoBehaviour caller)
+}
+
+public class DrainEffectObject : RecurrentEffectObject<SpellManager>
+{
+    protected float drainPower;
+
+    public DrainEffectObject(EffectSO effectSO, MonoBehaviour caller) : base(effectSO, caller)
     {
-        spellManager.DrainFromChannels(drainPower);
+        var castedEffectSO = (effectSO as DrainEffectSO);
+        this.drainPower = castedEffectSO.drainPower;
     }
 
-
+    public override void Apply()
+    {
+        targetComponent.DrainFromChannels(drainPower);
+    }
 }
